@@ -13,6 +13,7 @@ let appDelegate = UIApplication.shared.delegate as? AppDelegate
 
 class GoalsVC: UIViewController {
 
+    @IBOutlet weak var completeView: UIView!
     @IBOutlet weak var tableView: UITableView!
     
     var goals : [Goal]=[]
@@ -86,13 +87,44 @@ extension GoalsVC: UITableViewDelegate, UITableViewDataSource {
             self.fetchCoreDataObject()
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
+        
+        // add ation add to tableview
+        let addAction = UITableViewRowAction(style: .normal, title: "ADD 1") { (rowACtion, indexPath) in
+            self.setProgress(atIndexPath:indexPath)
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+            
+        }
+        
         deleteAction.backgroundColor = #colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1)
-        return [deleteAction]
+        addAction.backgroundColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
+        return [deleteAction, addAction]
     }
     
 }
 
 extension GoalsVC{
+    
+    func setProgress (atIndexPath indexPath: IndexPath){
+         guard let managedContx = appDelegate?.persistentContainer.viewContext else {return}
+        
+        let chocenGoal = goals[indexPath.row]
+        if chocenGoal.goalProgress < chocenGoal.goalCompletionValue {
+            chocenGoal.goalProgress = chocenGoal.goalProgress+1
+            
+        }else { return }
+        
+        do {
+            try
+                managedContx.save()
+            print("done")
+            
+        }catch {
+            debugPrint("could not do:\(error.localizedDescription)")
+        }
+        
+      
+        
+    }
     
     // remove function
     func removeGoal (atindexpath indexpath: IndexPath) {
